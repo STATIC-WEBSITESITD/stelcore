@@ -285,10 +285,10 @@ function Footer() {
   ];
 
   const policyLinks = [
-    { label: "Privacy Policy", to: "/privacy-policy" },
-    { label: "Terms & Conditions", to: "/terms-and-conditions" },
-    { label: "Refund Policy", to: "/refund-policy" },
-    { label: "Shipping Policy", to: "/shipping-policy" },
+    { label: "Privacy Policy" },
+    { label: "Terms & Conditions" },
+    { label: "Refund Policy" },
+    { label: "Shipping Policy" },
   ];
 
   return (
@@ -357,13 +357,7 @@ function Footer() {
           <p className="mb-0 shrink-0">© 2026 Stelcore. All rights reserved.</p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:justify-end">
             {policyLinks.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="transition-colors hover:text-green"
-              >
-                {l.label}
-              </Link>
+              <span key={l.label}>{l.label}</span>
             ))}
           </div>
         </div>
