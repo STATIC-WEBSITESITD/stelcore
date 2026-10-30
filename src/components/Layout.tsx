@@ -5,9 +5,9 @@ import { Link, Outlet, useLocation } from "react-router";
 import logo from "@/imports/stelcoreescs-1.svg";
 import Seo from "@/components/Seo";
 
-type NavSubItem = { label: string; to: string };
+type NavSubItem = { label: string; to?: string };
 type NavItem =
-  | { label: string; to: string; items?: never }
+  | { label: string; to?: string; items?: never }
   | { label: string; to?: never; items: NavSubItem[] };
 
 const navItems: NavItem[] = [
@@ -18,17 +18,17 @@ const navItems: NavItem[] = [
     items: [
       { label: "Trade Enablement", to: "/trade-enablement" },
       { label: "Compliance", to: "/compliance" },
-      { label: "Cross Border Express", to: "/cross-border-express" },
-      { label: "Ocean Freight", to: "/ocean-freight" },
-      { label: "Supply Chain", to: "/supply-chain" },
-      { label: "Global Fulfilment", to: "/global-fulfilment" },
-      { label: "Last Mile & Return Logistics", to: "/last-mile-returns" },
-      { label: "Global Trade", to: "/global-trade" },
+      { label: "Cross Border Express" },
+      { label: "Ocean Freight" },
+      { label: "Supply Chain" },
+      { label: "Global Fulfilment" },
+      { label: "Last Mile & Return Logistics" },
+      { label: "Global Trade" },
     ],
   },
-  { label: "Markets", to: "/markets" },
-  { label: "Industries", to: "/industries" },
-  { label: "My Shipment", to: "/my-shipment" },
+  { label: "Markets" },
+  { label: "Industries" },
+  { label: "My Shipment" },
   { label: "Contact Us", to: "/contact" },
 ];
 
@@ -73,16 +73,26 @@ function Navbar() {
           {navItems.map((item) => {
             const hasMenu = Array.isArray(item.items);
             const isOpen = openMenu === item.label;
+            const itemClass =
+              "flex items-center gap-1.5 rounded-md px-3.5 py-2 text-[15px] font-medium text-navy";
 
-            if (item.to) {
+            if (!hasMenu) {
+              if (item.to) {
+                return (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className={`${itemClass} transition-colors hover:text-green`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              }
+
               return (
-                <Link
-                  key={item.label}
-                  to={item.to}
-                  className="flex items-center gap-1.5 rounded-md px-3.5 py-2 text-[15px] font-medium text-navy transition-colors hover:text-green"
-                >
+                <span key={item.label} className={itemClass}>
                   {item.label}
-                </Link>
+                </span>
               );
             }
 
@@ -90,42 +100,47 @@ function Navbar() {
               <div
                 key={item.label}
                 className="relative"
-                onMouseEnter={() => hasMenu && setOpenMenu(item.label)}
-                onMouseLeave={() => hasMenu && setOpenMenu(null)}
+                onMouseEnter={() => setOpenMenu(item.label)}
+                onMouseLeave={() => setOpenMenu(null)}
               >
                 <button
                   type="button"
-                  aria-expanded={hasMenu ? isOpen : undefined}
-                  onClick={() =>
-                    hasMenu && setOpenMenu(isOpen ? null : item.label)
-                  }
-                  className={`flex items-center gap-1.5 rounded-md px-3.5 py-2 text-[15px] font-medium transition-colors ${
-                    isOpen ? "text-green" : "text-navy hover:text-green"
+                  aria-expanded={isOpen}
+                  onClick={() => setOpenMenu(isOpen ? null : item.label)}
+                  className={`${itemClass} transition-colors ${
+                    isOpen ? "text-green" : "hover:text-green"
                   }`}
                 >
                   {item.label}
-                  {hasMenu && (
-                    <ChevronDown
-                      className={`h-4 w-4 text-slate transition-transform ${
-                        isOpen ? "rotate-180 text-green" : ""
-                      }`}
-                    />
-                  )}
+                  <ChevronDown
+                    className={`h-4 w-4 text-slate transition-transform ${
+                      isOpen ? "rotate-180 text-green" : ""
+                    }`}
+                  />
                 </button>
-                {hasMenu && isOpen && item.items && (
+                {isOpen && item.items && (
                   <div className="absolute left-0 top-full z-50 w-60 pt-2">
                     <div className="overflow-hidden rounded-xl border border-line bg-white p-1.5 shadow-[0_20px_45px_-20px_rgba(22,35,63,0.35)]">
-                      {item.items.map((sub) => (
-                        <Link
-                          key={sub.label}
-                          to={sub.to}
-                          onClick={() => setOpenMenu(null)}
-                          className="group/item flex items-center justify-between rounded-lg px-3.5 py-2.5 text-[15px] font-medium text-navy transition-colors hover:bg-mist hover:text-green"
-                        >
-                          <span>{sub.label}</span>
-                          <ArrowRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100" />
-                        </Link>
-                      ))}
+                      {item.items.map((sub) =>
+                        sub.to ? (
+                          <Link
+                            key={sub.label}
+                            to={sub.to}
+                            onClick={() => setOpenMenu(null)}
+                            className="group/item flex items-center justify-between rounded-lg px-3.5 py-2.5 text-[15px] font-medium text-navy transition-colors hover:bg-mist hover:text-green"
+                          >
+                            <span>{sub.label}</span>
+                            <ArrowRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all group-hover/item:translate-x-0 group-hover/item:opacity-100" />
+                          </Link>
+                        ) : (
+                          <span
+                            key={sub.label}
+                            className="flex items-center justify-between rounded-lg px-3.5 py-2.5 text-[15px] font-medium text-navy"
+                          >
+                            {sub.label}
+                          </span>
+                        )
+                      )}
                     </div>
                   </div>
                 )}
@@ -169,16 +184,22 @@ function Navbar() {
             <nav className="mx-auto max-w-site px-3 py-4">
               <ul className="space-y-1">
                 {navItems.map((item) => {
-                  if (item.to) {
+                  if (!item.items) {
                     return (
                       <li key={item.label}>
-                        <Link
-                          to={item.to}
-                          onClick={() => setMobileOpen(false)}
-                          className="block rounded-lg px-3.5 py-3 text-[15px] font-medium text-navy transition-colors hover:bg-mist hover:text-green"
-                        >
-                          {item.label}
-                        </Link>
+                        {item.to ? (
+                          <Link
+                            to={item.to}
+                            onClick={() => setMobileOpen(false)}
+                            className="block rounded-lg px-3.5 py-3 text-[15px] font-medium text-navy transition-colors hover:bg-mist hover:text-green"
+                          >
+                            {item.label}
+                          </Link>
+                        ) : (
+                          <span className="block rounded-lg px-3.5 py-3 text-[15px] font-medium text-navy">
+                            {item.label}
+                          </span>
+                        )}
                       </li>
                     );
                   }
@@ -198,17 +219,23 @@ function Navbar() {
                           }`}
                         />
                       </button>
-                      {mobileSolutionsOpen && item.items && (
+                      {mobileSolutionsOpen && (
                         <ul className="mb-2 ml-3 space-y-1 border-l border-line pl-3">
                           {item.items.map((sub) => (
                             <li key={sub.label}>
-                              <Link
-                                to={sub.to}
-                                onClick={() => setMobileOpen(false)}
-                                className="block rounded-lg px-3 py-2.5 text-[14px] font-medium text-slate transition-colors hover:bg-mist hover:text-green"
-                              >
-                                {sub.label}
-                              </Link>
+                              {sub.to ? (
+                                <Link
+                                  to={sub.to}
+                                  onClick={() => setMobileOpen(false)}
+                                  className="block rounded-lg px-3 py-2.5 text-[14px] font-medium text-slate transition-colors hover:bg-mist hover:text-green"
+                                >
+                                  {sub.label}
+                                </Link>
+                              ) : (
+                                <span className="block rounded-lg px-3 py-2.5 text-[14px] font-medium text-slate">
+                                  {sub.label}
+                                </span>
+                              )}
                             </li>
                           ))}
                         </ul>
@@ -245,15 +272,15 @@ function Footer() {
       links: [
         { label: "Home", to: "/" },
         { label: "About Us", to: "/about" },
-        { label: "Markets", to: "/markets" },
-        { label: "Industries", to: "/industries" },
-        { label: "My Shipment", to: "/my-shipment" },
+        { label: "Markets" },
+        { label: "Industries" },
+        { label: "My Shipment" },
         { label: "Contact Us", to: "/contact" },
-      ],
+      ] as { label: string; to?: string }[],
     },
     {
       title: "Solutions",
-      links: solutions.map((item) => ({ label: item.label, to: item.to! })),
+      links: solutions.map((item) => ({ label: item.label, to: item.to })),
     },
   ];
 
@@ -283,12 +310,16 @@ function Footer() {
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
                   <li key={l.label}>
-                    <Link
-                      to={l.to}
-                      className="text-sm text-slate transition-colors hover:text-green"
-                    >
-                      {l.label}
-                    </Link>
+                    {l.to ? (
+                      <Link
+                        to={l.to}
+                        className="text-sm text-slate transition-colors hover:text-green"
+                      >
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <span className="text-sm text-slate">{l.label}</span>
+                    )}
                   </li>
                 ))}
               </ul>

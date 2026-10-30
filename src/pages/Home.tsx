@@ -11,6 +11,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { Link } from "react-router";
 import SiteCTA from "@/components/SiteCTA";
 
 const features = [
@@ -187,12 +188,12 @@ function Hero() {
               Request a Quote
               <ArrowRight className="h-4 w-4" />
             </a>
-            <a
-              href="#"
+            <Link
+              to="/trade-enablement"
               className="inline-flex items-center gap-2 rounded-lg border border-green/40 px-6 py-3.5 text-[15px] font-semibold text-green transition-colors hover:bg-green-50"
             >
               Explore Solutions
-            </a>
+            </Link>
           </div>
 
           <div className="mt-10 flex flex-nowrap items-center gap-4 overflow-x-auto border-t border-line pt-8 sm:gap-8">
