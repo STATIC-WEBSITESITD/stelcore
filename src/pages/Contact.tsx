@@ -41,39 +41,54 @@ function Hero() {
   );
 }
 
+const CONTACT_FORM_URL = "https://script.google.com/macros/s/AKfycbzlFYjLEsnVcJMZndrs0Z5riLN07pYELu5-a7kgzY5zS4eQg9m7Ha9sB7eNVP9jJhIe/exec";
+
 function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
-
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    const name = String(data.get("name") || "").trim();
-    const email = String(data.get("email") || "").trim();
+    const form = e.currentTarget;
+    const data = new FormData(form);
     const mobile = String(data.get("mobile") || "").trim();
-    const subject = String(data.get("subject") || "").trim();
-    const message = String(data.get("message") || "").trim();
-
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      `Mobile: ${mobile}`,
-      "",
-      message,
-    ].join("\n");
-
-    window.location.href = `mailto:support@stelcore.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setSubmitted(true);
-    e.currentTarget.reset();
+    const payload = {
+      name: String(data.get("name") || "").trim(),
+      email: String(data.get("email") || "").trim(),
+      mobile: mobile ? `'${mobile}` : "",
+      subject: String(data.get("subject") || "").trim(),
+      message: String(data.get("message") || "").trim(),
+    };
+    setSubmitting(true);
+    setError(null);
+    try {
+      await fetch(CONTACT_FORM_URL, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        redirect: "follow",
+      });
+      setSubmitted(true);
+      form.reset();
+    } catch {
+      setError("Something went wrong. Please try again or WhatsApp us.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
     <div className={`${cardClass} h-full p-7`} data-aos="fade-up">
       <h2 className="font-display text-xl font-bold text-navy">Get in Touch</h2>
-
       {submitted ? (
         <p className="mt-5 rounded-xl border border-green/30 bg-green-50 px-4 py-3 text-sm text-green-600">
-          Thanks — your email client should open so you can send the message.
-          We typically reply within one business day.
+          Thanks — your message was sent. We typically reply within one business
+          day.
+        </p>
+      ) : null}
+      {error ? (
+        <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
         </p>
       ) : null}
 
@@ -151,9 +166,10 @@ function ContactForm() {
         <div className="sm:col-span-2">
           <button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-lg bg-navy px-6 py-3.5 text-[15px] font-semibold text-white transition-colors hover:bg-navy-700"
+            disabled={submitting}
+            className="inline-flex items-center gap-2 rounded-lg bg-navy px-6 py-3.5 text-[15px] font-semibold text-white transition-colors hover:bg-navy-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Send Message
+            {submitting ? "Sending…" : "Send Message"}
             <Send className="h-4 w-4" />
           </button>
         </div>
